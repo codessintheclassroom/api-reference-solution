@@ -1,0 +1,328 @@
+openapi: 3.0.1
+info:
+  title: Shelter API
+  description: |
+    A website which provides information about pets which are being sheltered and are available
+    for adoption.
+
+  license:
+    name: MIT
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:5000
+  - url: https://localhost:5001
+
+tags:
+  - name: health
+    description: APIs used to determine whether your service is healthy and running as expected.
+
+  - name: pets
+    description: APIs used to enumerate and manage the collection of pets which are available for adoption.
+
+paths:
+  /api/v1/health:
+    get:
+      tags:
+        - health
+
+      summary: Get Health (v1)
+      description: Gets information about the current health state of your service.
+      operationId: health_v1
+      responses:
+        200:
+          description: The service is healthy.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthV1"
+              example:
+                status: Healthy
+                results:
+                  database:
+                    status: Healthy
+                    description: Connected to upstream database server.
+                    data: {}
+        500:
+          description: The service is unhealthy.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthV1"
+              example:
+                status: Unhealthy
+                results:
+                  database:
+                    status: Unhealthy
+                    description: Unable to connect to the upstream database server.
+                    data: {}
+
+  /api/v1/pets:
+    get:
+      tags:
+        - pets
+      summary: Get Pets (v1)
+      description: Gets the list of pets which have been registered with our shelter.
+      operationId: pets_list_v1
+      responses:
+        200:
+          description: The list of pets.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PetV1"
+        500:
+          description: An error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    post:
+      tags:
+        - pets
+      summary: Add Pet (v1)
+      description: Registers a new pet our shelter and gives them a unique ID.
+      operationId: pets_add_v1
+      requestBody:
+        description: The details of the pet you are entering into the shelter.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PetV1"
+      responses:
+        201:
+          description: The newly added pet with its unique ID.
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The URL at which you will be able to request the details of this pet in future.
+              required: true
+              example: "https://localhost:5001/api/v1/pet/225c5957d7f450baec75a67ede427e9"
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PetV1"
+        500:
+          description: An error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/v1/pet/{id}:
+    get:
+      tags:
+        - pets
+      summary: Get Pet (v1)
+      description: Fetches the details of a specific pet from our service.
+      operationId: pet_v1
+      parameters:
+        - name: id
+          in: path
+          description: The unique ID of the idea you wish to retrieve.
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-f0-9]{32}$
+      responses:
+        200:
+          description: The pet which you requested information about.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PetV1"
+        404:
+          description: The pet could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          description: An error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    patch:
+      tags:
+        - pets
+      summary: Mofify Pet (v1)
+      description: Modifies the information about a pet
+      operationId: pet_modify_v1
+      parameters:
+        - name: id
+          in: path
+          description: The unique ID of the idea you wish to retrieve.
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-f0-9]{32}$
+      requestBody:
+        description: The changes you wish to make to the pet's information.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PetV1"
+            example:
+              status: adopted
+
+      responses:
+        200:
+          description: The newly modified pet's information.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PetV1"
+        404:
+          description: The pet could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          description: An error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    HealthV1:
+      required:
+        - status
+      type: object
+      properties:
+        status:
+          type: string
+          description: The current aggregate status of the service.
+          enum:
+            - Healthy
+            - Degraded
+            - Unhealthy
+        results:
+          type: object
+          additionalProperties:
+            type: object
+            required:
+              - status
+              - description
+            properties:
+              status:
+                type: string
+                description: The current status of the service's component.
+                enum:
+                  - Healthy
+                  - Degraded
+                  - Unhealthy
+              description:
+                type: string
+                description: A short description of this component's healthy.
+              data:
+                type: object
+                additionalProperties: true
+                properties: {}
+          readOnly: true
+          xml:
+            name: Status
+      xml:
+        name: Health
+      example:
+        ok: true
+
+    PetV1:
+      required:
+        - name
+        - kind
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The unique ID of the pet in our database.
+          readOnly: true
+        name:
+          type: string
+          description: The pet's given name, used to call it for cuddles and petting.
+        status:
+          type: string
+          description: The current adoption status of the pet.
+          enum:
+            - available
+            - adopted
+            - unavailable
+        kind:
+          type: string
+          description: The kind of pet, might be a dog, cat or goldfish amongst others.
+          enum:
+            - dog
+            - cat
+            - goldfish
+            - horse
+            - hamster
+        breed:
+          type: string
+          description: The breed of the pet, whether a Golden Retriever or Russian Blue.
+        description:
+          type: string
+          description: A short description of the pet, may use Markdown for rich formatting.
+        birthday:
+          type: string
+          format: date
+          description: The date on which the pet was born, used to determine when treats should be purchased.
+        photos:
+          type: array
+          description: A list of photographs of this pet to help warm hearts and put smiles on faces.
+          items:
+            type: string
+            description: The URL at which the photo of this pet may be downloaded.
+      example:
+        id: "225c5957d7f450baec75a67ede427e9"
+        name: "Fido"
+        status: available
+        kind: dog
+        breed: Labrador
+        description: "Fido is a good boy who loves long walks in the park, playing with his ball and licking faces. He's great with children and an absolute sweetheart."
+        birthday: 2016-04-15
+        photos:
+          - https://upload.wikimedia.org/wikipedia/commons/b/b3/Labrador_on_Quantock_%282307909488%29.jpg
+
+    Error:
+      type: object
+      description: An error describing a problem that the server has encountered or identified.
+      required:
+        - status
+        - traceId
+        - title
+      properties:
+        status:
+          type: number
+          format: integer
+          minimum: 100
+          maximum: 599
+          description: The HTTP status code corresponding to this error.
+        title:
+          type: string
+          description: The human readable description of the HTTP status code.
+        type:
+          type: string
+          description: The URI describing the specific error or class of errors this belongs to.
+        traceId:
+          type: string
+          description: A unique trace ID which can be used to associate this error with any corresponding logs.
+        errors:
+          type: object
+          description: Additional information about the errors which occurred while processing the request.
+      example:
+        errors:
+          property:
+            - The value 'invalid' is not valid.
+        title: "One or more validation errors occurred."
+        status: 400
+        traceId: 0HLLO6QBUHOL3:00000001
