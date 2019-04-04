@@ -164,7 +164,7 @@ paths:
     patch:
       tags:
         - pets
-      summary: Mofify Pet (v1)
+      summary: Modify Pet (v1)
       description: Modifies the information about a pet
       operationId: pet_modify_v1
       parameters:
