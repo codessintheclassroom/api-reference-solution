@@ -15,10 +15,10 @@ servers:
 
 tags:
   - name: health
-    description: APIs used to determine whether your service is healthy and running as expected.
+    description: APIs used to determine whether your service is healthy and running as expected. This API will likely be consumed by your backend service orchestrator and monitoring tooling to automatically identify and isolate/repair broken instances or serve an error page while your service recovers.
 
   - name: pets
-    description: APIs used to enumerate and manage the collection of pets which are available for adoption.
+    description: APIs used to enumerate and manage the collection of pets which are available for adoption. This API will likely be consumed primarily by your user interface to show available pets and allow the registration and management of your fluffy friends.
 
 paths:
   /api/v1/health:
@@ -107,6 +107,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PetV1"
+        400:
+          description: The request you submitted did not consist of valid JSON data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        422:
+          description: The request you submitted did not meet the schema requirements for a valid pet entry.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         500:
           description: An error occurred on the server.
           content:
@@ -223,7 +235,7 @@ components:
                   - Unhealthy
               description:
                 type: string
-                description: A short description of this component's healthy.
+                description: A short description of this component's health.
               data:
                 type: object
                 additionalProperties: true
@@ -304,7 +316,7 @@ components:
         status:
           type: number
           format: integer
-          minimum: 100
+          minimum: 400
           maximum: 599
           description: The HTTP status code corresponding to this error.
         title:
