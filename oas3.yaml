@@ -73,12 +73,27 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/PetV1"
+              example:
+                - id: "225c5957d7f450baec75a67ede427e9"
+                  name: "Fido"
+                  status: available
+                  kind: dog
+                  breed: Labrador
+                  description: "Fido is a good boy who loves long walks in the park, playing with his ball and licking faces. He's great with children and an absolute sweetheart."
+                  birthday: 2016-04-15
+                  photos:
+                    - https://upload.wikimedia.org/wikipedia/commons/b/b3/Labrador_on_Quantock_%282307909488%29.jpg
+
         500:
           description: An error occurred on the server.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+              example:
+                title: "An internal server error occurred."
+                status: 500
+                traceId: 0HLLO6QBUHOL3:00000001
 
     post:
       tags:
@@ -107,24 +122,50 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PetV1"
+              example: 
+                id: "225c5957d7f450baec75a67ede427e9"
+                name: "Fido"
+                status: available
+                kind: dog
+                breed: Labrador
+                description: "Fido is a good boy who loves long walks in the park, playing with his ball and licking faces. He's great with children and an absolute sweetheart."
+                birthday: 2016-04-15
+                photos:
+                  - https://upload.wikimedia.org/wikipedia/commons/b/b3/Labrador_on_Quantock_%282307909488%29.jpg
+
         400:
           description: The request you submitted did not consist of valid JSON data.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+              example:
+                title: "The request you submitted did not consist of valid JSON data."
+                status: 400
+                traceId: 0HLLO6QBUHOL3:00000001
         422:
           description: The request you submitted did not meet the schema requirements for a valid pet entry.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+              example:
+                errors:
+                  kind:
+                    - The value 'car' is not valid.
+                title: "One or more validation errors occurred."
+                status: 422
+                traceId: 0HLLO6QBUHOL3:00000001
         500:
           description: An error occurred on the server.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+              example:
+                title: "An internal server error occurred."
+                status: 500
+                traceId: 0HLLO6QBUHOL3:00000001
 
   /api/v1/pet/{id}:
     get:
@@ -148,18 +189,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PetV1"
+              example: 
+                id: "225c5957d7f450baec75a67ede427e9"
+                name: "Fido"
+                status: available
+                kind: dog
+                breed: Labrador
+                description: "Fido is a good boy who loves long walks in the park, playing with his ball and licking faces. He's great with children and an absolute sweetheart."
+                birthday: 2016-04-15
+                photos:
+                  - https://upload.wikimedia.org/wikipedia/commons/b/b3/Labrador_on_Quantock_%282307909488%29.jpg
         404:
           description: The pet could not be found.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+              example:
+                title: "The pet you requested could not be found."
+                status: 404
+                traceId: 0HLLO6QBUHOL3:00000001
         500:
           description: An error occurred on the server.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+              example:
+                title: "An internal server error occurred."
+                status: 500
+                traceId: 0HLLO6QBUHOL3:00000001
 
     patch:
       tags:
@@ -191,18 +250,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PetV1"
+              example: 
+                id: "225c5957d7f450baec75a67ede427e9"
+                name: "Fido"
+                status: available
+                kind: dog
+                breed: Labrador
+                description: "Fido is a good boy who loves long walks in the park, playing with his ball and licking faces. He's great with children and an absolute sweetheart."
+                birthday: 2016-04-15
+                photos:
+                  - https://upload.wikimedia.org/wikipedia/commons/b/b3/Labrador_on_Quantock_%282307909488%29.jpg
         404:
           description: The pet could not be found.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+              example:
+                title: "The pet you requested could not be found."
+                status: 404
+                traceId: 0HLLO6QBUHOL3:00000001
         500:
           description: An error occurred on the server.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+              example:
+                title: "An internal server error occurred."
+                status: 500
+                traceId: 0HLLO6QBUHOL3:00000001
 
 components:
   schemas:
