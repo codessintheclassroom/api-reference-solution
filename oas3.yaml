@@ -15,10 +15,26 @@ servers:
 
 tags:
   - name: health
-    description: APIs used to determine whether your service is healthy and running as expected. This API will likely be consumed by your backend service orchestrator and monitoring tooling to automatically identify and isolate/repair broken instances or serve an error page while your service recovers.
+    description: |
+      APIs used to determine whether your service is healthy and running as expected.
+      
+      This API will likely be consumed by your backend service orchestrator and monitoring tooling
+      to automatically identify and isolate/repair broken instances or serve an error page while your
+      service recovers.
 
   - name: pets
-    description: APIs used to enumerate and manage the collection of pets which are available for adoption. This API will likely be consumed primarily by your user interface to show available pets and allow the registration and management of your fluffy friends.
+    description: |
+      APIs used to enumerate and manage the collection of pets which are available for adoption.
+      
+      This API will likely be consumed primarily by your user interface to show available pets
+      and allow the registration and management of your fluffy friends.
+
+  - name: inquiries
+    description: |
+      APIs used to collect and review inquiries made by customers about specific pets.
+
+      This API will primarily be used by customers through a "submit enquiry" form, allowing them
+      to quickly request more information about a specific pet.
 
 paths:
   /api/v1/health:
@@ -96,6 +112,9 @@ paths:
                 traceId: 0HLLO6QBUHOL3:00000001
 
     post:
+      security:
+        - AzureAD:
+          - Pets.Write
       tags:
         - pets
       summary: Add Pet (v1)
@@ -142,6 +161,26 @@ paths:
               example:
                 title: "The request you submitted did not consist of valid JSON data."
                 status: 400
+                traceId: 0HLLO6QBUHOL3:00000001
+        401:
+          description: You did not provide a valid authentication header with your request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "You did not provide a valid Authorization header."
+                status: 401
+                traceId: 0HLLO6QBUHOL3:00000001
+        403:
+          description: You do not have permission to access this resource.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "You do not have permission to access this resource."
+                status: 403
                 traceId: 0HLLO6QBUHOL3:00000001
         422:
           description: The request you submitted did not meet the schema requirements for a valid pet entry.
@@ -221,6 +260,9 @@ paths:
                 traceId: 0HLLO6QBUHOL3:00000001
 
     patch:
+      security:
+        - AzureAD:
+          - Pets.Write
       tags:
         - pets
       summary: Modify Pet (v1)
@@ -234,6 +276,7 @@ paths:
           schema:
             type: string
             pattern: ^[a-f0-9]{32}$
+
       requestBody:
         description: The changes you wish to make to the pet's information.
         content:
@@ -260,6 +303,26 @@ paths:
                 birthday: 2016-04-15
                 photos:
                   - https://upload.wikimedia.org/wikipedia/commons/b/b3/Labrador_on_Quantock_%282307909488%29.jpg
+        401:
+          description: You did not provide a valid authentication header with your request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "You did not provide a valid Authorization header."
+                status: 401
+                traceId: 0HLLO6QBUHOL3:00000001
+        403:
+          description: You do not have permission to access this resource.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "You do not have permission to access this resource."
+                status: 403
+                traceId: 0HLLO6QBUHOL3:00000001
         404:
           description: The pet could not be found.
           content:
@@ -281,7 +344,181 @@ paths:
                 status: 500
                 traceId: 0HLLO6QBUHOL3:00000001
 
+  /api/v1/inquiries:
+    get:
+      security:
+        - AzureAD:
+          - Inquiries.Read
+      tags:
+        - inquiries
+      summary: Get Inquiries (v1)
+      description: Gets the list of inquiries which have been submitted by customers.
+      operationId: inquiries_list_v1
+      responses:
+        200:
+          description: The list of inquiries which have been submitted by customers.
+
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InquiryV1"
+              example: 
+                - id: "be7d7f767ed5e9c595aec44222575a0"
+                  petId: "225c5957d7f450baec75a67ede427e9"
+                  name: Charles
+                  email: charles@xavier.edu
+                  message: I'm a collector of wolverines and have a spectacularly large garden and mansion in which they are free to play. Please get in touch.
+
+
+        400:
+          description: The request you submitted did not consist of valid JSON data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "The request you submitted did not consist of valid JSON data."
+                status: 400
+                traceId: 0HLLO6QBUHOL3:00000001
+        401:
+          description: You did not provide a valid authentication header with your request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "You did not provide a valid Authorization header."
+                status: 401
+                traceId: 0HLLO6QBUHOL3:00000001
+        403:
+          description: You do not have permission to access this resource.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "You do not have permission to access this resource."
+                status: 403
+                traceId: 0HLLO6QBUHOL3:00000001
+        422:
+          description: The request you submitted did not meet the schema requirements for a valid pet entry.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                errors:
+                  kind:
+                    - The value 'car' is not valid.
+                title: "One or more validation errors occurred."
+                status: 422
+                traceId: 0HLLO6QBUHOL3:00000001
+        500:
+          description: An error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "An internal server error occurred."
+                status: 500
+                traceId: 0HLLO6QBUHOL3:00000001
+
+    post:
+      tags:
+        - inquiries
+      summary: Submit Inquiry (v1)
+      description: |
+                    Submits a new inquiry about the availability of a particular pet for adoption.
+
+                    In general, this endpoint will be used on a pet's details page to allow prospective
+                    adopters to submit their details and request more information about the pet before
+                    visiting the shelter to view them.
+      operationId: inquiries_add_v1
+      requestBody:
+        description: The details of your inquiry.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InquiryV1"
+            example: 
+              petId: "225c5957d7f450baec75a67ede427e9"
+              name: Charles
+              email: charles@xavier.edu
+              message: I'm a collector of wolverines and have a spectacularly large garden and mansion in which they are free to play. Please get in touch.
+
+      responses:
+        201:
+          description: The details of the submitted inquiry.
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The URL at which you will be able to request the details of this inquiry in future.
+              required: true
+              example: "https://localhost:5001/api/v1/inquiry/be7d7f767ed5e9c595aec44222575a0"
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InquiryV1"
+              example: 
+                id: "be7d7f767ed5e9c595aec44222575a0"
+                petId: "225c5957d7f450baec75a67ede427e9"
+                name: Charles
+                email: charles@xavier.edu
+                message: I'm a collector of wolverines and have a spectacularly large garden and mansion in which they are free to play. Please get in touch.
+
+
+        400:
+          description: The request you submitted did not consist of valid JSON data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "The request you submitted did not consist of valid JSON data."
+                status: 400
+                traceId: 0HLLO6QBUHOL3:00000001
+        422:
+          description: The request you submitted did not meet the schema requirements for a valid pet entry.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                errors:
+                  kind:
+                    - The value 'car' is not valid.
+                title: "One or more validation errors occurred."
+                status: 422
+                traceId: 0HLLO6QBUHOL3:00000001
+        500:
+          description: An error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "An internal server error occurred."
+                status: 500
+                traceId: 0HLLO6QBUHOL3:00000001
+
+
 components:
+  securitySchemes:
+    AzureAD:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://login.microsoftonline.com/common/oauth2/authorize
+          tokenUrl: https://login.microsoftonline.com/common/oauth2/token
+          scopes:
+            Inquiries.Read: Grants read access to the list of inquiries.
+            Pets.Write: Grants write access to the pets collection.
+
   schemas:
     HealthV1:
       required:
