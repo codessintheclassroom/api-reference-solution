@@ -382,6 +382,38 @@ components:
         photos:
           - https://upload.wikimedia.org/wikipedia/commons/b/b3/Labrador_on_Quantock_%282307909488%29.jpg
 
+    InquiryV1:
+      required:
+        - petId
+        - name
+        - email
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The unique ID of the inquiry in our database.
+          readOnly: true
+        petId:
+          type: string
+          format: uuid
+          description: The unique ID of the pet that this inquiry focuses upon.
+        name:
+          type: string
+          description: The name of the individual making the inquiry.
+        email:
+          type: string
+          description: The email address of the individual making the inquiry.
+        message:
+          type: string
+          description: The message attached with the inquiry, allowing the individual to state their intent.
+      example:
+        id: "be7d7f767ed5e9c595aec44222575a0"
+        petId: "225c5957d7f450baec75a67ede427e9"
+        name: Charles
+        email: charles@xavier.edu
+        message: I'm a collector of wolverines and have a spectacularly large garden and mansion in which they are free to play. Please get in touch.
+
+
     Error:
       type: object
       description: An error describing a problem that the server has encountered or identified.
