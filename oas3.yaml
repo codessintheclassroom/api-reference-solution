@@ -215,7 +215,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: The unique ID of the idea you wish to retrieve.
+          description: The unique ID of the pet you wish to retrieve.
           required: true
           schema:
             type: string
@@ -270,7 +270,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: The unique ID of the idea you wish to retrieve.
+          description: The unique ID of the pet you wish to modify.
           required: true
           schema:
             type: string
@@ -589,7 +589,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: The unique ID of the inquiry you wish to retrieve.
+          description: The unique ID of the inquiry you wish to modify.
           required: true
           schema:
             type: string
