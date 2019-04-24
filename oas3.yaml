@@ -10,8 +10,7 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://localhost:5000
-  - url: https://localhost:5001
+  - url: https://codess-shelter.azurewebsites.net
 
 tags:
   - name: health
@@ -464,7 +463,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InquiryV1"
-              example: 
+              example:
                 id: "be7d7f767ed5e9c595aec44222575a0"
                 petId: "225c5957d7f450baec75a67ede427e9"
                 name: Charles
@@ -506,6 +505,160 @@ paths:
                 status: 500
                 traceId: 0HLLO6QBUHOL3:00000001
 
+  /api/v1/inquiry/{id}:
+    get:
+      security:
+        - AzureAD:
+          - Inquiries.Read
+      tags:
+        - inquiries
+      summary: Get Inquiry (v1)
+      description: Fetches the details of a specific inquiry from our service.
+      operationId: inquiry_v1
+      parameters:
+        - name: id
+          in: path
+          description: The unique ID of the inquiry you wish to retrieve.
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-f0-9]{32}$
+      responses:
+        200:
+          description: The inquiry which you requested information about.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InquiryV1"
+              example: 
+                id: "be7d7f767ed5e9c595aec44222575a0"
+                petId: "225c5957d7f450baec75a67ede427e9"
+                name: Charles
+                email: charles@xavier.edu
+                message: I'm a collector of wolverines and have a spectacularly large garden and mansion in which they are free to play. Please get in touch.
+        401:
+          description: You did not provide a valid authentication header with your request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "You did not provide a valid Authorization header."
+                status: 401
+                traceId: 0HLLO6QBUHOL3:00000001
+        403:
+          description: You do not have permission to access this resource.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "You do not have permission to access this resource."
+                status: 403
+                traceId: 0HLLO6QBUHOL3:00000001
+        404:
+          description: The inquiry could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "The pet you requested could not be found."
+                status: 404
+                traceId: 0HLLO6QBUHOL3:00000001
+        500:
+          description: An error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "An internal server error occurred."
+                status: 500
+                traceId: 0HLLO6QBUHOL3:00000001
+
+    patch:
+      security:
+        - AzureAD:
+          - Inquiries.Write
+      tags:
+        - inquiries
+      summary: Modify Inquiry (v1)
+      description: Modifies the information about an inquiry
+      operationId: inquiry_modify_v1
+      parameters:
+        - name: id
+          in: path
+          description: The unique ID of the inquiry you wish to retrieve.
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-f0-9]{32}$
+
+      requestBody:
+        description: The changes you wish to make to the inquiry's information.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InquiryV1"
+            example:
+              name: "Charlie X"
+
+      responses:
+        200:
+          description: The newly modified inquiry's information.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InquiryV1"
+              example: 
+                
+                id: "be7d7f767ed5e9c595aec44222575a0"
+                petId: "225c5957d7f450baec75a67ede427e9"
+                name: Charlie X
+                email: charles@xavier.edu
+                message: I'm a collector of wolverines and have a spectacularly large garden and mansion in which they are free to play. Please get in touch.
+        401:
+          description: You did not provide a valid authentication header with your request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "You did not provide a valid Authorization header."
+                status: 401
+                traceId: 0HLLO6QBUHOL3:00000001
+        403:
+          description: You do not have permission to access this resource.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "You do not have permission to access this resource."
+                status: 403
+                traceId: 0HLLO6QBUHOL3:00000001
+        404:
+          description: The pet could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "The pet you requested could not be found."
+                status: 404
+                traceId: 0HLLO6QBUHOL3:00000001
+        500:
+          description: An error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                title: "An internal server error occurred."
+                status: 500
+                traceId: 0HLLO6QBUHOL3:00000001
+
 
 components:
   securitySchemes:
@@ -513,10 +666,11 @@ components:
       type: oauth2
       flows:
         authorizationCode:
-          authorizationUrl: https://login.microsoftonline.com/common/oauth2/authorize
-          tokenUrl: https://login.microsoftonline.com/common/oauth2/token
+          authorizationUrl: https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+          tokenUrl: https://login.microsoftonline.com/common/oauth2/v2.0/token
           scopes:
             Inquiries.Read: Grants read access to the list of inquiries.
+            Inquiries.Write: Grants write access to existing inquiry objects.
             Pets.Write: Grants write access to the pets collection.
 
   schemas:
