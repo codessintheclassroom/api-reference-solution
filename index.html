@@ -1,0 +1,43 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Pet Shelter API specification</title>
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@3/swagger-ui.css">
+</head>
+
+<body>
+  <main></main>
+  <script src="https://unpkg.com/swagger-ui-dist@3/swagger-ui-standalone-preset.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
+  <script>
+      (function() {
+          function ready(fn) {
+              if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+                  fn();
+              } else {
+                  document.addEventListener('DOMContentLoaded', fn);
+              }
+          }
+
+          ready(function () {
+              SwaggerUIBundle({
+                  url: '/oas3.yaml',
+                  domNode: document.querySelector('main'),
+                  deepLinking: true,
+                  presets: [
+                      SwaggerUIBundle.presets.apis,
+                      SwaggerUIStandalonePreset
+                  ],
+                  plugins: [
+                      SwaggerUIBundle.plugins.DownloadUrl
+                  ],
+                  layout: "StandaloneLayout"
+              });
+          });
+      }());
+  </script>
+</body>
+</html>
